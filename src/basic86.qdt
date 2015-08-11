@@ -1,0 +1,160 @@
+;
+; basic86.qdt -- main program;
+;
+; Copyright (C) 2015 Bruno F‚lix Rezende Ribeiro <oitofelix@gnu.org>
+;
+; This program is free software; you can redistribute it and/or modify
+; it under the terms of the GNU General Public License as published by
+; the Free Software Foundation; either version 3, or (at your option)
+; any later version.
+;
+; This program is distributed in the hope that it will be useful,
+; but WITHOUT ANY WARRANTY; without even the implied warranty of
+; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+; GNU General Public License for more details.
+;
+; You should have received a copy of the GNU General Public License
+; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+;
+
+%push SRC_BASIC86_QDT
+
+
+%ifndef SRC_BASIC86_QDT
+%define SRC_BASIC86_QDT
+
+CPU 8086
+ORG 100h
+
+%include "qdot/qdot.qdt"
+
+?import boot_sector
+%include "kernel/boot.qdt"
+
+mov sp, 0FFFEh
+mov bp, sp
+
+call main
+
+?import main
+%include "src/basic86.qdt"
+
+; Make this program's size a multiple of the sector size (512 bytes)
+; so the boot loader can exactly load it.
+
+times 512 - ($ - $$) % 512 db 0
+
+PROGRAM_END:
+
+%endif ; SRC_BASIC86_QDT
+
+
+;;;;;;;
+; main
+;;;;;;;
+
+%ifdef IMPORT_main
+%ifndef IMPORTED_main
+%define IMPORTED_main
+
+?import editor
+%include "src/basic86.qdt"
+
+?import video_init, video_cls, video_enable_cursor
+%include "kernel/video.qdt"
+
+?import dos_exit
+%include "os/dos.qdt"
+
+?func main
+  ? call, video_init
+  ? call, video_enable_cursor
+  ? call, video_cls
+
+  ? call, editor
+
+  ? call, dos_exit
+?endfunc
+
+%endif ; IMPORTED_main
+%endif ; IMPORT_main
+
+
+;;;;;;;;;
+; editor
+;;;;;;;;;
+
+%ifdef IMPORT_editor
+%ifndef IMPORTED_editor
+%define IMPORTED_editor
+
+?import BACKSPACE, RETURN, LEFT_ARROW, RIGHT_ARROW, UP_ARROW, \
+  DOWN_ARROW, HOME, CTRL_HOME, CTRL_RIGHT_ARROW, CTRL_LEFT_ARROW, \
+  END_KEY, keyboard_read_char_scancode
+%include "kernel/keyboard.qdt"
+
+?import video_prev_col, video_next_col_noscroll, video_prev_row, \
+  video_next_row_noscroll, video_draw_char, video_next_col, \
+  video_win_color, video_win_minrow, video_win_mincol, video_setpos, \
+  video_cls, video_next_word, video_draw_char_logline, \
+  video_setpos_logline_end
+%include "kernel/video.qdt"
+
+?import memory_char_class_az_AZ_09
+%include "kernel/memory.qdt"
+
+?import debug_print_byte
+%include "kernel/debug.qdt"
+
+?func editor
+  ?local %$ascii, %$scan
+  .read_char: ?do
+    ?switch =, %$$$scan, =, %$$$ascii, call, keyboard_read_char_scancode
+      ?case ==, BACKSPACE, %$$$ascii
+      ?case ==, RETURN, %$$$ascii
+      ?default
+        ?if ||, <, %$$$$ascii, 20h, \
+                >, %$$$$ascii, 7Eh
+          ; ?continue .read_char
+        ?endif
+    ?endswitch
+
+    ; ? call, debug_print_byte, %$$scan
+    ; ? drop, call, debug_print_byte, call, video_read_char
+
+    ?switch
+      ?case ==, HOME, %$$$scan
+        ? call, video_setpos, [video_win_minrow], [video_win_mincol]
+      ?case ==, CTRL_HOME, %$$$scan
+        ? call, video_cls
+      ?case ==, LEFT_ARROW, %$$$scan
+        ? call, video_prev_col
+      ?case ==, RIGHT_ARROW, %$$$scan
+        ? call, video_next_col_noscroll
+      ?case ==, UP_ARROW, %$$$scan
+        ? call, video_prev_row
+      ?case ==, DOWN_ARROW, %$$$scan
+        ? call, video_next_row_noscroll
+      ?case ==, CTRL_RIGHT_ARROW, %$$$scan
+        ? drop, call, video_next_word, memory_char_class_az_AZ_09, ?TRUE, ?TRUE
+      ?case ==, CTRL_LEFT_ARROW, %$$$scan
+        ? drop, call, video_next_word,  memory_char_class_az_AZ_09, ?TRUE, ?FALSE
+      ?case ==, END_KEY, %$$$scan
+        ? call, video_setpos_logline_end
+      ?default
+        ? call, video_draw_char_logline, %$$$ascii
+    ?endswitch
+
+  ?while ?TRUE
+?endfunc
+
+%endif ; IMPORTED_editor
+%endif ; IMPORT_editor
+
+
+
+%pop SRC_BASIC86_QDT
+
+; Local Variables:
+; coding: cp437-dos
+; End:

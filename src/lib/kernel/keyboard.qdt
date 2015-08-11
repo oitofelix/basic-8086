@@ -1,0 +1,466 @@
+;
+; keyboard.qdt -- keyboard facilities;
+;
+; Copyright (C) 2015 Bruno F‚lix Rezende Ribeiro <oitofelix@gnu.org>
+;
+; This program is free software; you can redistribute it and/or modify
+; it under the terms of the GNU General Public License as published by
+; the Free Software Foundation; either version 3, or (at your option)
+; any later version.
+;
+; This program is distributed in the hope that it will be useful,
+; but WITHOUT ANY WARRANTY; without even the implied warranty of
+; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+; GNU General Public License for more details.
+;
+; You should have received a copy of the GNU General Public License
+; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+;
+
+%push KERNEL_KEYBOARD_QDT
+
+
+;;;;;;;;
+; PRINT
+;;;;;;;;
+
+%ifdef IMPORT_PRINT
+%ifndef IMPORTED_PRINT
+%define IMPORTED_PRINT
+
+PRINT equ 0000h
+
+%endif ; IMPORTED_PRINT
+%endif ; IMPORT_PRINT
+
+
+;;;;;;;;;;
+; NOPRINT
+;;;;;;;;;;
+
+%ifdef IMPORT_NOPRINT
+%ifndef IMPORTED_NOPRINT
+%define IMPORTED_NOPRINT
+
+NOPRINT equ 0001h
+
+%endif ; IMPORTED_NOPRINT
+%endif ; IMPORT_NOPRINT
+
+
+;;;;;;;;;;
+; RETURN
+;;;;;;;;;;
+
+%ifdef IMPORT_RETURN
+%ifndef IMPORTED_RETURN
+%define IMPORTED_RETURN
+
+RETURN equ 0Dh
+
+%endif ; IMPORTED_RETURN
+%endif ; IMPORT_RETURN
+
+
+;;;;;;;;;;;;
+; BACKSPACE
+;;;;;;;;;;;;
+
+%ifdef IMPORT_BACKSPACE
+%ifndef IMPORTED_BACKSPACE
+%define IMPORTED_BACKSPACE
+
+BACKSPACE equ 08h
+
+%endif ; IMPORTED_BACKSPACE
+%endif ; IMPORT_BACKSPACE
+
+
+;;; NEW
+
+;;;;;;;;;;;;;
+; LEFT_ARROW
+;;;;;;;;;;;;;
+
+%ifdef IMPORT_LEFT_ARROW
+%ifndef IMPORTED_LEFT_ARROW
+%define IMPORTED_LEFT_ARROW
+
+LEFT_ARROW equ 4Bh
+
+%endif ; IMPORTED_LEFT_ARROW
+%endif ; IMPORT_LEFT_ARROW
+
+
+;;; NEW
+
+;;;;;;;;;;;;;;
+; RIGHT_ARROW
+;;;;;;;;;;;;;;
+
+%ifdef IMPORT_RIGHT_ARROW
+%ifndef IMPORTED_RIGHT_ARROW
+%define IMPORTED_RIGHT_ARROW
+
+RIGHT_ARROW equ 4Dh
+
+%endif ; IMPORTED_RIGHT_ARROW
+%endif ; IMPORT_RIGHT_ARROW
+
+
+;;; NEW
+
+;;;;;;;;;;;
+; UP_ARROW
+;;;;;;;;;;;
+
+%ifdef IMPORT_UP_ARROW
+%ifndef IMPORTED_UP_ARROW
+%define IMPORTED_UP_ARROW
+
+UP_ARROW equ 48h
+
+%endif ; IMPORTED_UP_ARROW
+%endif ; IMPORT_UP_ARROW
+
+
+;;; NEW
+
+;;;;;;;;;;;;;
+; DOWN_ARROW
+;;;;;;;;;;;;;
+
+%ifdef IMPORT_DOWN_ARROW
+%ifndef IMPORTED_DOWN_ARROW
+%define IMPORTED_DOWN_ARROW
+
+DOWN_ARROW equ 50h
+
+%endif ; IMPORTED_DOWN_ARROW
+%endif ; IMPORT_DOWN_ARROW
+
+
+;;; NEW
+
+;;;;;;;
+; HOME
+;;;;;;;
+
+%ifdef IMPORT_HOME
+%ifndef IMPORTED_HOME
+%define IMPORTED_HOME
+
+HOME equ 47h
+
+%endif ; IMPORTED_HOME
+%endif ; IMPORT_HOME
+
+
+;;; NEW
+
+;;;;;;;;;;
+; END_KEY
+;;;;;;;;;;
+
+%ifdef IMPORT_END_KEY
+%ifndef IMPORTED_END_KEY
+%define IMPORTED_END_KEY
+
+END_KEY equ 4Fh
+
+%endif ; IMPORTED_END_KEY
+%endif ; IMPORT_END_KEY
+
+
+;;; NEW
+
+;;;;;;;;;;;;
+; CTRL_HOME
+;;;;;;;;;;;;
+
+%ifdef IMPORT_CTRL_HOME
+%ifndef IMPORTED_CTRL_HOME
+%define IMPORTED_CTRL_HOME
+
+CTRL_HOME equ 77h
+
+%endif ; IMPORTED_CTRL_HOME
+%endif ; IMPORT_CTRL_HOME
+
+
+;;; NEW
+
+;;;;;;;;;;;;;;;;;;
+; CTRL_LEFT_ARROW
+;;;;;;;;;;;;;;;;;;
+
+%ifdef IMPORT_CTRL_LEFT_ARROW
+%ifndef IMPORTED_CTRL_LEFT_ARROW
+%define IMPORTED_CTRL_LEFT_ARROW
+
+CTRL_LEFT_ARROW equ 73h
+
+%endif ; IMPORTED_CTRL_LEFT_ARROW
+%endif ; IMPORT_CTRL_LEFT_ARROW
+
+
+;;; NEW
+
+;;;;;;;;;;;;;;;;;;
+; CTRL_RIGHT_ARROW
+;;;;;;;;;;;;;;;;;;
+
+%ifdef IMPORT_CTRL_RIGHT_ARROW
+%ifndef IMPORTED_CTRL_RIGHT_ARROW
+%define IMPORTED_CTRL_RIGHT_ARROW
+
+CTRL_RIGHT_ARROW equ 74h
+
+%endif ; IMPORTED_CTRL_RIGHT_ARROW
+%endif ; IMPORT_CTRL_RIGHT_ARROW
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; keyboard_mindelay_maxrate
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+%ifdef IMPORT_keyboard_mindelay_maxrate
+%ifndef IMPORTED_keyboard_mindelay_maxrate
+%define IMPORTED_keyboard_mindelay_maxrate
+
+?func keyboard_mindelay_maxrate
+  mov ax, 0305h
+  mov bx, 0000h
+  int 16h
+?endfunc
+
+%endif ; IMPORTED_keyboard_mindelay_maxrate
+%endif ; IMPORT_keyboard_mindelay_maxrate
+
+
+;;;;;;;;;;;;;;;;;;;;;
+; keyboard_read_char
+;;;;;;;;;;;;;;;;;;;;;
+
+%ifdef IMPORT_keyboard_read_char
+%ifndef IMPORTED_keyboard_read_char
+%define IMPORTED_keyboard_read_char
+
+?func keyboard_read_char
+  ?local %$char
+  mov ah, 00h
+  int 16h
+  mov word %$char, 0
+  mov %$char, al
+?endfunc %$char
+
+%endif ; IMPORTED_keyboard_read_char
+%endif ; IMPORT_keyboard_read_char
+
+
+;;; NEW
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; keyboard_read_char_scancode
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+%ifdef IMPORT_keyboard_read_char_scancode
+%ifndef IMPORTED_keyboard_read_char_scancode
+%define IMPORTED_keyboard_read_char_scancode
+
+?func keyboard_read_char_scancode
+  ?local %$ascii, %$scan
+  mov ah, 00h
+  int 16h
+  mov word %$ascii, 0
+  mov %$ascii, al
+  mov word %$scan, 0
+  mov %$scan, ah
+?endfunc %$ascii, %$scan
+
+%endif ; IMPORTED_keyboard_read_char_scancode
+%endif ; IMPORT_keyboard_read_char_scancode
+
+
+;;;;;;;;;;;;;;;;;;;;;;
+; keyboard_check_char
+;;;;;;;;;;;;;;;;;;;;;;
+
+%ifdef IMPORT_keyboard_check_char
+%ifndef IMPORTED_keyboard_check_char
+%define IMPORTED_keyboard_check_char
+
+?func keyboard_check_char
+  ?local %$char
+  mov word %$char, 0
+  mov ah, 01h
+  int 16h
+  jz %$no_char
+  mov %$char, al
+  jmp %$end
+  %$no_char:
+    mov word %$char, -1
+  %$end:
+?endfunc %$char
+
+%endif ; IMPORTED_keyboard_check_char
+%endif ; IMPORT_keyboard_check_char
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;
+; keyboard_flush_buffer
+;;;;;;;;;;;;;;;;;;;;;;;;
+
+%ifdef IMPORT_keyboard_flush_buffer
+%ifndef IMPORTED_keyboard_flush_buffer
+%define IMPORTED_keyboard_flush_buffer
+
+?import keyboard_check_char, keyboard_read_char
+%include "kernel/keyboard.qdt"
+
+?func keyboard_flush_buffer
+  ?while !=, call, keyboard_check_char, -1
+    ? drop, call, keyboard_read_char
+  ?endwhile
+?endfunc
+
+%endif ; IMPORTED_keyboard_flush_buffer
+%endif ; IMPORT_keyboard_flush_buffer
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; keyboard_flush_buffer_from_char
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+%ifdef IMPORT_keyboard_flush_buffer_from_char
+%ifndef IMPORTED_keyboard_flush_buffer_from_char
+%define IMPORTED_keyboard_flush_buffer_from_char
+
+?import keyboard_check_char, keyboard_read_char
+%include "kernel/keyboard.qdt"
+
+?func keyboard_flush_buffer_from_char, %$char
+  ?local %$buffer_char
+  ?do
+    ? =, %$$buffer_char, call, keyboard_check_char
+    ?if ==, %$$$buffer_char, %$$$char
+      ? drop, call, keyboard_read_char
+    ?endif
+  ?while ||, ==, %$$buffer_char, -1, \
+             ==, %$$buffer_char, %$$char
+?endfunc
+
+%endif ; IMPORTED_keyboard_flush_buffer_from_char
+%endif ; IMPORT_keyboard_flush_buffer_from_char
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; keyboard_flush_buffer_from_char_with_resistence
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+%ifdef IMPORT_keyboard_flush_buffer_from_char_with_resistence
+%ifndef IMPORTED_keyboard_flush_buffer_from_char_with_resistence
+%define IMPORTED_keyboard_flush_buffer_from_char_with_resistence
+
+?import keyboard_check_char, keyboard_read_char
+%include "kernel/keyboard.qdt"
+
+?func keyboard_flush_buffer_from_char_with_resistence, %$char, %$resist
+  ?local %$buffer_char, %$i
+  ? =, %$i, %$resist
+  ?do
+    ? =, %$$buffer_char, call, keyboard_check_char
+    ?if ==, %$$$buffer_char, %$$$char
+      ? drop, call, keyboard_read_char
+      ? --, %$$$i
+    ?endif
+    ?if &&, !=, %$$$buffer_char, -1, \
+            !=, %$$$buffer_char, %$$$char
+      ?return ?FALSE
+    ?endif
+  ?while >, %$$i, 0
+?endfunc ?TRUE
+
+%endif ; IMPORTED_keyboard_flush_buffer_from_char_with_resistence
+%endif ; IMPORT_keyboard_flush_buffer_from_char_with_resistence
+
+
+;;;;;;;;;;;;;;;;;;;;
+; keyboard_read_str
+;;;;;;;;;;;;;;;;;;;;
+
+%ifdef IMPORT_keyboard_read_str
+%ifndef IMPORTED_keyboard_read_str
+%define IMPORTED_keyboard_read_str
+
+?import video_enable_cursor, video_prev_col, video_next_col, \
+video_draw_char
+%include "kernel/video.qdt"
+
+?import END
+%include "kernel/memory.qdt"
+
+?import keyboard_read_char, BACKSPACE, RETURN, PRINT, NOPRINT
+%include "kernel/keyboard.qdt"
+
+?import speaker_beep
+%include "kernel/speaker.qdt"
+
+?func keyboard_read_str, %$buffer, %$max, %$color, %$outchar
+  ?local %$char, %$i
+  ? =, %$i, 0
+  ? call, video_enable_cursor
+  .read_char: ?do
+    ?switch =, %$$$char, call, keyboard_read_char
+      ?case ==, BACKSPACE, %$$$char
+      ?case ==, RETURN, %$$$char
+      ?default
+        ?if ||, <, %$$$$char, 20h, \
+                >, %$$$$char, 7Eh
+          ?continue .read_char
+        ?endif
+    ?endswitch
+
+    ?switch
+      ?case ==, BACKSPACE, %$$$char
+        ?if >, %$$$$i, 0
+          ? --, %$$$$i
+          ?if !=, %$$$$outchar, NOPRINT
+            ? call, video_prev_col
+            ? call, video_draw_char, ' ', %$$$$$color, 1
+          ?endif
+        ?else
+          ? call, speaker_beep, 440, 1
+        ?endif
+      ?case ==, RETURN, %$$$char
+        ?break .read_char
+      ?default
+        ?if <, %$$$$i, %$$$$max
+          ? @byte=, +, %$$$$buffer, $++, %$$$$i, %$$$$char
+          ?if !=, %$$$$$outchar, NOPRINT
+            ? call, video_draw_char, \
+                ?:, ==, %$$$$$outchar, PRINT, \
+                    %$$$$$char, \
+                    %$$$$$outchar, \
+                %$$$$$color, 1
+            ? call, video_next_col
+          ?endif
+        ?else
+          ? call, speaker_beep, 440, 1
+        ?endif
+    ?endswitch
+  ?while ?TRUE
+  ? @byte=, +, %$buffer, %$i, END
+  ? call, video_disable_cursor
+?endfunc
+
+%endif ; IMPORTED_keyboard_read_str
+%endif ; IMPORT_keyboard_read_str
+
+
+
+%pop KERNEL_KEYBOARD_QDT
+
+; Local Variables:
+; coding: cp437-dos
+; End:
