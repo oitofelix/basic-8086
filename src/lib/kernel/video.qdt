@@ -765,6 +765,51 @@ WHITE equ 1111b
 %endif ; IMPORT_video_setpos_logline_end
 
 
+;;; NEW
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; video_del_logline_until_end
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+%ifdef IMPORT_video_del_logline_until_end
+%ifndef IMPORTED_video_del_logline_until_end
+%define IMPORTED_video_del_logline_until_end
+
+?import video_row, video_win_maxrow, video_read_char, video_setcol, \
+  video_win_maxcol, video_next_row_noscroll, video_next_col_noscroll
+%include "kernel/video.qdt"
+
+?import memory_char_class_blank
+%include "kernel/memory.qdt"
+
+?func video_del_logline_until_end
+  ?local %$char, %$color, %$count, %$row, %$col
+  ? =, %$count, 0
+  ? =, %$col, =, %$row, call, video_pos
+  ? call, video_draw_char, ' ', [video_win_color], dec, -, [video_win_cols], %$col
+  ?while &&, !=, %$$char, ?NULL, \
+             !=, call, video_row, [video_win_maxrow], \
+         =, %$$color, =, %$$char, call, video_read_char, \
+         call, video_setcol, [video_win_maxcol]
+    ? ++, %$$count
+    ? call, video_next_row_noscroll
+  ?endwhile
+  ?if &&, !=, call, video_row, [video_win_maxrow], \
+          >, %$$count, 0
+    ? =, [video_win_minrow], \
+      call, video_scroll_up_win, %$$count, \
+      =, [video_win_minrow], inc, %$$row, \
+      [video_win_minrow]
+  ?endif
+  ? call, video_setpos, %$row, [video_win_maxcol]
+  ? call, video_draw_char, ?NULL, [video_win_color], 1
+  ? call, video_setpos, %$row, %$col
+?endfunc
+
+%endif ; IMPORTED_video_del_logline_until_end
+%endif ; IMPORT_video_del_logline_until_end
+
+
 ;;;;;;;;;;;;;;;;;;;
 ; video_setpos_rel
 ;;;;;;;;;;;;;;;;;;;
@@ -1109,10 +1154,13 @@ WHITE equ 1111b
 %define IMPORTED_video_scroll_up_win
 
 ?import video_win_color, video_win_minrow, video_win_mincol, \
-  video_win_maxrow, video_win_maxcol, video_setpos_rel
+  video_win_maxrow, video_win_maxcol, video_setpos, video_pos
 %include "kernel/video.qdt"
 
 ?func video_scroll_up_win, %$rows
+  ?local %$row, %$col, %$i
+  ? =, %$col, =, %$row, call, video_pos
+
   mov ah, 06h
   mov al, %$rows
   mov bh, [video_win_color]
@@ -1122,7 +1170,13 @@ WHITE equ 1111b
   mov dl, [video_win_maxcol]
   int 10h
 
-  ? call, video_setpos_rel, neg, %$rows, 0
+  ?for =, %$$i, 0
+    ?cond <, %$$i, %$$rows
+    ? call, video_setpos, -, [video_win_maxrow], %$$i, [video_win_maxcol]
+    ? call, video_draw_char, ?NULL, [video_win_color], 1
+  ?next ++, %$$i
+
+  ? call, video_setpos, -, %$row, %$rows, %$col
 ?endfunc
 
 %endif ; IMPORTED_scroll_up_win
@@ -1138,10 +1192,13 @@ WHITE equ 1111b
 %define IMPORTED_video_scroll_down_win
 
 ?import video_win_color, video_win_minrow, video_win_mincol, \
-  video_win_maxrow, video_win_maxcol, video_setpos_rel
+  video_win_maxrow, video_win_maxcol, video_setpos, video_pos
 %include "kernel/video.qdt"
 
 ?func video_scroll_down_win, %$rows
+  ?local %$row, %$col, %$i
+  ? =, %$col, =, %$row, call, video_pos
+
   mov ah, 07h
   mov al, %$rows
   mov bh, [video_win_color]
@@ -1151,7 +1208,13 @@ WHITE equ 1111b
   mov dl, [video_win_maxcol]
   int 10h
 
-  ? call, video_setpos_rel, %$rows, 0
+  ?for =, %$$i, 0
+    ?cond <, %$$i, %$$rows
+    ? call, video_setpos, +, [video_win_minrow], %$$i, [video_win_maxcol]
+    ? call, video_draw_char, ?NULL, [video_win_color], 1
+  ?next ++, %$$i
+
+  ? call, video_setpos, +, %$row, %$rows, %$col
 ?endfunc
 
 %endif ; IMPORTED_video_scroll_down_win
@@ -1339,16 +1402,12 @@ video_win_maxcol, video_setpos, video_win_color
         call, video_scroll_down_win, 1, \
         =, [video_win_minrow], inc, %$$$row, \
         [video_win_minrow]
-      ? call, video_setpos, inc, %$$$row, [video_win_maxcol]
-      ? call, video_draw_char, ?NULL, [video_win_color], 1
     ?endif
     ?  =, %$$col, [video_win_mincol]
     ? ++, %$$row
   ?else
     ? =, %$$col, [video_win_mincol]
     ? call, video_scroll_up_win, 1
-    ? call, video_setpos, [video_win_maxrow], [video_win_maxcol]
-    ? call, video_draw_char, ?NULL, [video_win_color], 1
   ?endif
   ? call, video_setpos, %$row, %$col
 ?endfunc

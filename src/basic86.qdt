@@ -90,14 +90,14 @@ PROGRAM_END:
 
 ?import BACKSPACE, RETURN, LEFT_ARROW, RIGHT_ARROW, UP_ARROW, \
   DOWN_ARROW, HOME, CTRL_HOME, CTRL_RIGHT_ARROW, CTRL_LEFT_ARROW, \
-  END_KEY, keyboard_read_char_scancode
+  END_KEY, CTRL_END, keyboard_read_char_scancode
 %include "kernel/keyboard.qdt"
 
 ?import video_prev_col, video_next_col_noscroll, video_prev_row, \
   video_next_row_noscroll, video_draw_char, video_next_col, \
   video_win_color, video_win_minrow, video_win_mincol, video_setpos, \
   video_cls, video_next_word, video_draw_char_logline, \
-  video_setpos_logline_end
+  video_setpos_logline_end, video_del_logline_until_end
 %include "kernel/video.qdt"
 
 ?import memory_char_class_az_AZ_09
@@ -141,6 +141,8 @@ PROGRAM_END:
         ? drop, call, video_next_word,  memory_char_class_az_AZ_09, ?TRUE, ?FALSE
       ?case ==, END_KEY, %$$$scan
         ? call, video_setpos_logline_end
+      ?case ==, CTRL_END, %$$$scan
+        ? call, video_del_logline_until_end
       ?default
         ? call, video_draw_char_logline, %$$$ascii
     ?endswitch

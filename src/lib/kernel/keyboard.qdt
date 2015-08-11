@@ -220,6 +220,22 @@ CTRL_RIGHT_ARROW equ 74h
 %endif ; IMPORT_CTRL_RIGHT_ARROW
 
 
+;;; NEW
+
+;;;;;;;;;;;
+; CTRL_END
+;;;;;;;;;;;
+
+%ifdef IMPORT_CTRL_END
+%ifndef IMPORTED_CTRL_END
+%define IMPORTED_CTRL_END
+
+CTRL_END equ 75h
+
+%endif ; IMPORTED_CTRL_END
+%endif ; IMPORT_CTRL_END
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; keyboard_mindelay_maxrate
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
